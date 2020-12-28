@@ -1,2 +1,5 @@
 
 *.xcworkspacedata
+*.xcuserstate
+*.xcuserstate
+*.xcbkptlist

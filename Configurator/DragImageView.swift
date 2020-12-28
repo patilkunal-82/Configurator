@@ -17,23 +17,28 @@ class DragImageView: NSView {
     private let acceptedFileExtensions = ["jpg", "png", "jpeg"]
     private let supportedTypes: [NSPasteboard.PasteboardType] = [.tiff, .color, .string, .fileURL, .png, .pdf]
     
-//    required init?(coder: NSCoder) {
-//        super.init(coder: coder)
-//        self.registerForDraggedTypes(supportedTypes)
-//    }
         
     override func awakeFromNib() {
         super.awakeFromNib()
         self.registerForDraggedTypes(supportedTypes)
     }
     
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+
+        NSColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1).setFill()
+        dirtyRect.fill()
+    }
+    
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         fileTypeIsOk = checkExtension(drag: sender)
+        print("draggingEntered")
         return []
     }
     
     //3
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        print("draggingUpdated")
         return fileTypeIsOk ? .copy : []
     }
     

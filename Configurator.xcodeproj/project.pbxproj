@@ -442,6 +442,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 8KMH6969C4;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"\nPROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
+				);
 				INFOPLIST_FILE = Configurator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -463,6 +466,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 8KMH6969C4;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"\nPROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
+				);
 				INFOPLIST_FILE = Configurator/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

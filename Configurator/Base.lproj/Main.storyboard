@@ -805,6 +805,7 @@ Code</string>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </view>
                                     </subviews>
+                                    <color key="backgroundColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ixX-sk-UyK">
                                     <rect key="frame" x="1" y="523" width="598" height="16"/>
@@ -818,7 +819,7 @@ Code</string>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0X7-X6-w6k">
                                 <rect key="frame" x="252" y="559" width="96" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="New AR Book" drawsBackground="YES" id="rn6-wX-tiy">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" alignment="center" placeholderString="New AR Book" drawsBackground="YES" id="rn6-wX-tiy">
                                     <font key="font" usesAppearanceFont="YES"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -827,6 +828,7 @@ Code</string>
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="bookTitle" destination="0X7-X6-w6k" id="2sd-LF-hYM"/>
                         <outlet property="contentView" destination="TOm-GK-3FE" id="zPm-h7-Yv4"/>
                         <outlet property="scrollView" destination="9Qc-Ex-hXA" id="TyZ-Y0-Wdc"/>
                     </connections>
