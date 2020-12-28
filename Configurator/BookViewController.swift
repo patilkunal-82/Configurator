@@ -7,7 +7,6 @@
 
 import Cocoa
 
-class BookViewController: NSViewController, DragImageViewDelegate {
 class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDelegate {
     
     func didDragImage(url: URL) {
