@@ -31,6 +31,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
                     anchorsPlistDictionary[anchorKey]?.append(fileName)
                 }
             }
+            setupNextContentHolder()
         } else {
             var anchorExists = false
             for anchorKey in anchorsPlistDictionary.keys {
@@ -83,21 +84,22 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     }
     
     private func setupNextContentHolder() {
-        let currentAnchorDict = anchors[anchors.count - 1]
+        var currentAnchorDict = anchors[anchors.count - 1]
         let imageFrame = NSRect(x: 48 + anchorSize.width, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(totalContentCount + 1) + 16, width: anchorSize.width, height: anchorSize.height)
         let anchorID = "anchor" + String(anchors.count - 1)
-        let contentID = anchorID + "content" + String(currentAnchorDict.values.count)
+        let contentID = anchorID + "content" + String(currentAnchorDict.values.first?.count ?? 0)
         let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: contentID)
         dragImageView.delegate = self
         contentView.addSubview(dragImageView)
-        guard let anchorView = currentAnchorDict.keys.first, var contentList = currentAnchorDict[anchorView] else { return }
-        contentList.append(dragImageView)
+        guard let anchorView = currentAnchorDict.keys.first else { return }
+        currentAnchorDict[anchorView]?.append(dragImageView)
+        anchors[anchors.count - 1] = currentAnchorDict
     }
     
     private var totalContentCount: Int {
         var count = 0
         for anchor in anchors {
-            count += anchor.values.count
+            count += anchor.values.first?.count ?? 0
         }
         return count
     }
