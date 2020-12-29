@@ -90,7 +90,6 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         let contentID = anchorID + "content" + String(currentAnchorDict.values.first?.count ?? 0)
         let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: contentID)
         dragImageView.delegate = self
-//        contentView.bounds.size = NSSize(width: contentView.bounds.size.width, height: 16 + (16 + anchorSize.height))
         let count = totalContentCount + 1
         scrollView.documentView?.frame.size = NSSize(width: contentView.bounds.size.width, height: 16 + (16 + anchorSize.height) * CGFloat(count) + 1)
         scrollView.documentView?.addSubview(dragImageView)
