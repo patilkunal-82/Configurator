@@ -15,6 +15,7 @@ class DragImageView: NSView {
     var delegate: DragImageViewDelegate?
     let anchorIdentifier: String
     let contentIdentifier: String?
+    var isFilled = false
     private var fileTypeIsOk = false
     private let acceptedFileExtensions = ["jpg", "png", "jpeg"]
     private let supportedTypes: [NSPasteboard.PasteboardType] = [.tiff, .color, .string, .fileURL, .png, .pdf, .URL, .fileContents]
@@ -55,6 +56,7 @@ class DragImageView: NSView {
         self.addSubview(imageView)
         imageView.image = nsImage
         delegate?.didDragImage(url: draggedFileURL, in: self)
+        isFilled = true
         return true
     }
     

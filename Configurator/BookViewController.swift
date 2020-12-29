@@ -53,6 +53,8 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var contentView: NSView!
     @IBOutlet weak var bookTitle: NSTextField!
+    @IBOutlet weak var newAnchorButton: NSButton!
+    @IBOutlet weak var publishBookButton: NSButton!
     private let anchorSize = CGSize(width: 250, height: 250)
     private var anchors: [[DragImageView : [DragImageView]]] = []
     private let fileManager = FileManager()
@@ -74,7 +76,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     }
     
     private func setupAnchorHolder() {
-        let imageFrame = NSRect(x: 16, y: (16 + anchorSize.height) * CGFloat(anchors.count) + 16, width: anchorSize.width, height: anchorSize.height)
+        let imageFrame = NSRect(x: 16, y: 16, width: anchorSize.width, height: anchorSize.height)
         let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: nil)
         dragImageView.delegate = self
         scrollView.documentView?.addSubview(dragImageView)
@@ -85,17 +87,30 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     
     private func setupNextContentHolder() {
         var currentAnchorDict = anchors[anchors.count - 1]
-        let imageFrame = NSRect(x: 48 + anchorSize.width, y: (16 + anchorSize.height) * CGFloat(totalContentCount) + 16, width: anchorSize.width, height: anchorSize.height)
+        let imageFrame = NSRect(x: 48 + anchorSize.width, y: (16 + anchorSize.height) * CGFloat(currentContentCount) + 16, width: anchorSize.width, height: anchorSize.height)
         let anchorID = "anchor" + String(anchors.count - 1)
         let contentID = anchorID + "content" + String(currentAnchorDict.values.first?.count ?? 0)
-        let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: contentID)
+        let dragImageView = DragImageView(frame: imageFrame, anchorID: anchorID, contentIdentifier: contentID)
         dragImageView.delegate = self
-        let count = totalContentCount + 1
+        let count = currentContentCount + 1
         scrollView.documentView?.frame.size = NSSize(width: contentView.bounds.size.width, height: 16 + (16 + anchorSize.height) * CGFloat(count) + 1)
         scrollView.documentView?.addSubview(dragImageView)
         guard let anchorView = currentAnchorDict.keys.first else { return }
         currentAnchorDict[anchorView]?.append(dragImageView)
         anchors[anchors.count - 1] = currentAnchorDict
+        
+        newAnchorButton.isEnabled = shouldEnableNewAnchorButton
+        publishBookButton.isEnabled = shouldEnableNewAnchorButton
+    }
+    
+    private var shouldEnableNewAnchorButton: Bool {
+        var currentAnchorContentCount = 0
+        let currentAnchor = anchors[anchors.count - 1]
+        guard let contentArray = currentAnchor.values.first else { return false }
+        for content in contentArray {
+            if content.isFilled { currentAnchorContentCount += 1 }
+        }
+        return currentAnchorContentCount > 0 && ((currentAnchor.keys.first?.isFilled) != nil)
     }
     
     private var totalContentCount: Int {
@@ -104,6 +119,11 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
             count += anchor.values.first?.count ?? 0
         }
         return count
+    }
+    
+    private var currentContentCount: Int {
+        let anchor = anchors.last
+        return anchor?.values.first?.count ?? 0
     }
     
     private func addBook() {
@@ -122,6 +142,28 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         do {
             let plistData = try PropertyListSerialization.data(fromPropertyList: booksDictionary, format: .xml, options: 0)
             try plistData.write(to: URL(fileURLWithPath: plistPath))
+        } catch {
+            print("Could not write updated plist \(error)")
+        }
+    }
+    
+    @IBAction func startNewAnchor(_ sender: Any) {
+        guard newAnchorButton.isEnabled else { return }
+        guard let documentView = scrollView.documentView else { return }
+        for subview in documentView.subviews {
+            subview.removeFromSuperview()
+        }
+        setupNextAnchorContentPlaceholder()
+    }
+    
+    @IBAction func publishBook(_ sender: Any) {
+        guard publishBookButton.isEnabled else { return }
+        let lastPath = "/" + bookTitle.stringValue + ".plist"
+        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+
+        do {
+            let plistData = try PropertyListSerialization.data(fromPropertyList: anchorsPlistDictionary, format: .xml, options: 0)
+            try plistData.write(to: URL(fileURLWithPath: path))
         } catch {
             print("Could not write updated plist \(error)")
         }

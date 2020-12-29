@@ -794,25 +794,25 @@ Code</string>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView fixedFrame="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Qc-Ex-hXA">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="540"/>
+                                <rect key="frame" x="0.0" y="54" width="600" height="486"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <clipView key="contentView" id="LNv-Su-Ghf">
-                                    <rect key="frame" x="1" y="1" width="598" height="538"/>
+                                    <rect key="frame" x="1" y="1" width="598" height="484"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <view id="TOm-GK-3FE">
-                                            <rect key="frame" x="0.0" y="0.0" width="583" height="523"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="583" height="469"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         </view>
                                     </subviews>
                                     <color key="backgroundColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="ixX-sk-UyK">
-                                    <rect key="frame" x="1" y="523" width="598" height="16"/>
+                                    <rect key="frame" x="1" y="469" width="598" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="a6g-Ps-mSi">
-                                    <rect key="frame" x="583" y="1" width="16" height="538"/>
+                                    <rect key="frame" x="583" y="1" width="16" height="484"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
@@ -825,11 +825,35 @@ Code</string>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="22d-fa-dTZ">
+                                <rect key="frame" x="20" y="19" width="270" height="19"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="roundRect" title="Next Anchor" bezelStyle="roundedRect" alignment="center" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6Vm-O3-2J3">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="cellTitle"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="startNewAnchor:" target="Bkm-gT-gkq" id="v5u-V2-x74"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eMU-RG-PG2">
+                                <rect key="frame" x="310" y="19" width="270" height="19"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="roundRect" title="Publish book" bezelStyle="roundedRect" alignment="center" enabled="NO" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mZG-ei-p05">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="cellTitle"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="publishBook:" target="Bkm-gT-gkq" id="Fpy-kK-s70"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="bookTitle" destination="0X7-X6-w6k" id="2sd-LF-hYM"/>
                         <outlet property="contentView" destination="TOm-GK-3FE" id="zPm-h7-Yv4"/>
+                        <outlet property="newAnchorButton" destination="22d-fa-dTZ" id="CEU-LJ-tVg"/>
+                        <outlet property="publishBookButton" destination="eMU-RG-PG2" id="F7u-Q8-REt"/>
                         <outlet property="scrollView" destination="9Qc-Ex-hXA" id="TyZ-Y0-Wdc"/>
                     </connections>
                 </viewController>
