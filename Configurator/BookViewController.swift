@@ -49,7 +49,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         }
     }
     
-    let uuid = UUID()
+    private let uuid = UUID()
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var contentView: NSView!
     @IBOutlet weak var bookTitle: NSTextField!
@@ -74,10 +74,10 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     }
     
     private func setupAnchorHolder() {
-        let imageFrame = NSRect(x: 16, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(anchors.count + 1) + 16, width: anchorSize.width, height: anchorSize.height)
+        let imageFrame = NSRect(x: 16, y: (16 + anchorSize.height) * CGFloat(anchors.count) + 16, width: anchorSize.width, height: anchorSize.height)
         let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: nil)
         dragImageView.delegate = self
-        contentView.addSubview(dragImageView)
+        scrollView.documentView?.addSubview(dragImageView)
         var dict: [DragImageView : [DragImageView]] = [:]
         dict[dragImageView] = []
         anchors.append(dict)
@@ -85,12 +85,15 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     
     private func setupNextContentHolder() {
         var currentAnchorDict = anchors[anchors.count - 1]
-        let imageFrame = NSRect(x: 48 + anchorSize.width, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(totalContentCount + 1) + 16, width: anchorSize.width, height: anchorSize.height)
+        let imageFrame = NSRect(x: 48 + anchorSize.width, y: (16 + anchorSize.height) * CGFloat(totalContentCount) + 16, width: anchorSize.width, height: anchorSize.height)
         let anchorID = "anchor" + String(anchors.count - 1)
         let contentID = anchorID + "content" + String(currentAnchorDict.values.first?.count ?? 0)
         let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: contentID)
         dragImageView.delegate = self
-        contentView.addSubview(dragImageView)
+//        contentView.bounds.size = NSSize(width: contentView.bounds.size.width, height: 16 + (16 + anchorSize.height))
+        let count = totalContentCount + 1
+        scrollView.documentView?.frame.size = NSSize(width: contentView.bounds.size.width, height: 16 + (16 + anchorSize.height) * CGFloat(count) + 1)
+        scrollView.documentView?.addSubview(dragImageView)
         guard let anchorView = currentAnchorDict.keys.first else { return }
         currentAnchorDict[anchorView]?.append(dragImageView)
         anchors[anchors.count - 1] = currentAnchorDict
