@@ -9,32 +9,97 @@ import Cocoa
 
 class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDelegate {
     
-    func didDragImage(url: URL) {
-//        fileManager.copyItem(at: url, to: destinationPath!)
+    func didDragImage(url: URL, in dragView: DragImageView) {
+        let fileName = (dragView.contentIdentifier == nil ? dragView.anchorIdentifier : dragView.contentIdentifier!) + "." + url.pathExtension
+        let lastPath = "/" + fileName
+        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+        if fileManager.fileExists(atPath: path) {
+            do {
+                try fileManager.removeItem(atPath: path)
+            } catch {
+                print("can't delete file at: \(path): \(error)")
+            }
+        }
+        do {
+            try fileManager.copyItem(at: url, to: URL(fileURLWithPath: path))
+        } catch {
+            print("error copying file: \(error)")
+        }
+        if let _ = dragView.contentIdentifier {
+            for anchorKey in anchorsPlistDictionary.keys {
+                if anchorKey.contains(dragView.anchorIdentifier) {
+                    anchorsPlistDictionary[anchorKey]?.append(fileName)
+                }
+            }
+        } else {
+            var anchorExists = false
+            for anchorKey in anchorsPlistDictionary.keys {
+                if anchorKey.contains(dragView.anchorIdentifier) {
+                    let contentArray = anchorsPlistDictionary[anchorKey]
+                    anchorsPlistDictionary.removeValue(forKey: anchorKey)
+                    anchorsPlistDictionary[fileName] = contentArray
+                    anchorExists = true
+                    break
+                }
+            }
+            if !anchorExists {
+                anchorsPlistDictionary[fileName] = []
+            }
+        }
     }
+    
     let uuid = UUID()
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var contentView: NSView!
     @IBOutlet weak var bookTitle: NSTextField!
     private let anchorSize = CGSize(width: 250, height: 250)
-    private var anchors: [DragImageView] = []
+    private var anchors: [[DragImageView : [DragImageView]]] = []
     private let fileManager = FileManager()
     private var destinationPath: URL?
     private var titleAdded = false
     private var booksDictionary: [String : String] = [:]
+    private var anchorsPlistDictionary: [String : [String]] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
         bookTitle.delegate = self
+        setupNextAnchorContentPlaceholder()
+    }
+    
+    private func setupNextAnchorContentPlaceholder() {
         setupAnchorHolder()
+        setupNextContentHolder()
     }
     
     private func setupAnchorHolder() {
-        let dragImageView = DragImageView(frame: NSRect(x: 16, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(anchors.count + 1) + 16, width: anchorSize.width, height: anchorSize.height))
+        let imageFrame = NSRect(x: 16, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(anchors.count + 1) + 16, width: anchorSize.width, height: anchorSize.height)
+        let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: nil)
         dragImageView.delegate = self
         contentView.addSubview(dragImageView)
-        anchors.append(dragImageView)
+        var dict: [DragImageView : [DragImageView]] = [:]
+        dict[dragImageView] = []
+        anchors.append(dict)
+    }
+    
+    private func setupNextContentHolder() {
+        let currentAnchorDict = anchors[anchors.count - 1]
+        let imageFrame = NSRect(x: 48 + anchorSize.width, y: contentView.bounds.height - (16 + anchorSize.height) * CGFloat(totalContentCount + 1) + 16, width: anchorSize.width, height: anchorSize.height)
+        let anchorID = "anchor" + String(anchors.count - 1)
+        let contentID = anchorID + "content" + String(currentAnchorDict.values.count)
+        let dragImageView = DragImageView(frame: imageFrame, anchorID: "anchor" + String(anchors.count), contentIdentifier: contentID)
+        dragImageView.delegate = self
+        contentView.addSubview(dragImageView)
+        guard let anchorView = currentAnchorDict.keys.first, var contentList = currentAnchorDict[anchorView] else { return }
+        contentList.append(dragImageView)
+    }
+    
+    private var totalContentCount: Int {
+        var count = 0
+        for anchor in anchors {
+            count += anchor.values.count
+        }
+        return count
     }
     
     private func addBook() {

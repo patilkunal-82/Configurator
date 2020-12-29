@@ -10,6 +10,8 @@ import Cocoa
 class ViewController: NSViewController {
 
     static var pathToBooksPlist: String?
+    static var pathToCloudContent: String?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -33,6 +35,7 @@ class ViewController: NSViewController {
             return
         }
 
+        Self.pathToCloudContent = cloudContentPath
         let pathPlist = cloudContentPath.appending("/books.plist")
         if fileManager.createFile(atPath: pathPlist, contents: nil, attributes: nil) {
             Self.pathToBooksPlist = pathPlist
