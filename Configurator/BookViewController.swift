@@ -10,6 +10,10 @@ import Cocoa
 class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDelegate {
     
     func didDragImage(url: URL, in dragView: DragImageView) {
+        guard !dragView.coverImage else {
+            saveCoverImage(url: url, fromView: dragView)
+            return
+        }
         let fileName = (dragView.contentIdentifier == nil ? dragView.anchorIdentifier : dragView.contentIdentifier!) + "." + url.pathExtension
         let lastPath = "/" + fileName
         guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
@@ -60,14 +64,13 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     private let fileManager = FileManager()
     private var destinationPath: URL?
     private var titleAdded = false
-    private var booksDictionary: [String : String] = [:]
+    private var booksDictionary: [String : [String : String]] = [:]
     private var anchorsPlistDictionary: [String : [String]] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
         bookTitle.delegate = self
-        setupNextAnchorContentPlaceholder()
     }
     
     private func setupNextAnchorContentPlaceholder() {
@@ -103,6 +106,19 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         publishBookButton.isEnabled = shouldEnableNewAnchorButton
     }
     
+    private func addCoverImageHolder() {
+        let origin = CGPoint(x: (scrollView.bounds.width - anchorSize.width) * 0.5, y: (scrollView.bounds.height - anchorSize.height) * 0.5)
+        let coverImageView = DragImageView(frame: CGRect(origin: origin, size: anchorSize), anchorID: "", coverImage: true)
+        let label = NSTextView()
+        label.isEditable = false
+        label.string = "Add cover image"
+        label.sizeToFit()
+        label.frame.origin = CGPoint(x: (coverImageView.bounds.width - label.bounds.size.width) * 0.5, y: (coverImageView.bounds.height - label.bounds.size.height) * 0.5)
+        coverImageView.addSubview(label)
+        coverImageView.delegate = self
+        scrollView.addSubview(coverImageView)
+    }
+    
     private var shouldEnableNewAnchorButton: Bool {
         var currentAnchorContentCount = 0
         let currentAnchor = anchors[anchors.count - 1]
@@ -126,25 +142,36 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         return anchor?.values.first?.count ?? 0
     }
     
-    private func addBook() {
-        guard let plistPath = ViewController.pathToBooksPlist, let plist = fileManager.contents(atPath: plistPath) else { return }
-        if !plist.isEmpty {
-            do {
-                booksDictionary = try PropertyListSerialization.propertyList(from: plist, options: .mutableContainersAndLeaves, format: nil) as! [String : String]
-            } catch {
-                print("could not read plist into dictionary \(error)")
-            }
-        }
+    private func addBook(withCoverImage coverImageName: String) {
         if booksDictionary.keys.contains(uuid.uuidString) {
             booksDictionary.removeValue(forKey: uuid.uuidString)
         }
-        booksDictionary[uuid.uuidString] = bookTitle.stringValue
-        do {
-            let plistData = try PropertyListSerialization.data(fromPropertyList: booksDictionary, format: .xml, options: 0)
-            try plistData.write(to: URL(fileURLWithPath: plistPath))
-        } catch {
-            print("Could not write updated plist \(error)")
+        var thisBook: [String : String] = [:]
+        thisBook[KeyConstants.bookName] = bookTitle.stringValue
+        thisBook[KeyConstants.coverImageName] = coverImageName
+        booksDictionary[uuid.uuidString] = thisBook
+    }
+    
+    private func saveCoverImage(url: URL, fromView coverImageView: DragImageView) {
+        let name = bookTitle.stringValue
+        let fileName = name + "." + url.pathExtension
+        let lastPath = "/" + fileName
+        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+        if fileManager.fileExists(atPath: path) {
+            do {
+                try fileManager.removeItem(atPath: path)
+            } catch {
+                print("can't delete file at: \(path): \(error)")
+            }
         }
+        do {
+            try fileManager.copyItem(at: url, to: URL(fileURLWithPath: path))
+        } catch {
+            print("error copying file: \(error)")
+        }
+        addBook(withCoverImage: fileName)
+        coverImageView.removeFromSuperview()
+        setupNextAnchorContentPlaceholder()
     }
     
     @IBAction func startNewAnchor(_ sender: Any) {
@@ -167,12 +194,27 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         } catch {
             print("Could not write updated plist \(error)")
         }
+        guard let plistPath = ViewController.pathToBooksPlist, let plist = fileManager.contents(atPath: plistPath) else { return }
+        if !plist.isEmpty {
+            do {
+                booksDictionary = try PropertyListSerialization.propertyList(from: plist, options: .mutableContainersAndLeaves, format: nil) as! [String : [String : String]]
+            } catch {
+                print("could not read plist into dictionary \(error)")
+            }
+        }
+        do {
+            let plistData = try PropertyListSerialization.data(fromPropertyList: booksDictionary, format: .xml, options: 0)
+            try plistData.write(to: URL(fileURLWithPath: plistPath))
+        } catch {
+            print("Could not write updated plist \(error)")
+        }
+
     }
     
     //Mark: NSTextFieldDelegate
     func controlTextDidEndEditing(_ obj: Notification) {
         defer { titleAdded = true }
-        addBook()
         bookTitle.isEnabled = false
+        addCoverImageHolder()
     }
 }

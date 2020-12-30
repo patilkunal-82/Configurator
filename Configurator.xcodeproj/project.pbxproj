@@ -17,6 +17,7 @@
 		E3FC255B259531DA006BB256 /* davinci.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = E3FC255A259531DA006BB256 /* davinci.jpeg */; };
 		E3FC25612595344C006BB256 /* BookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FC255F2595344C006BB256 /* BookViewController.swift */; };
 		E3FC256A25954481006BB256 /* DragImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FC256925954481006BB256 /* DragImageView.swift */; };
+		E3FC2595259D1726006BB256 /* KeyConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FC2594259D1726006BB256 /* KeyConstants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +55,7 @@
 		E3FC255A259531DA006BB256 /* davinci.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = davinci.jpeg; sourceTree = "<group>"; };
 		E3FC255F2595344C006BB256 /* BookViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookViewController.swift; sourceTree = "<group>"; };
 		E3FC256925954481006BB256 /* DragImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragImageView.swift; sourceTree = "<group>"; };
+		E3FC2594259D1726006BB256 /* KeyConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				E3FC252C259528EF006BB256 /* Main.storyboard */,
 				E3FC256925954481006BB256 /* DragImageView.swift */,
 				E3FC255F2595344C006BB256 /* BookViewController.swift */,
+				E3FC2594259D1726006BB256 /* KeyConstants.swift */,
 				E3FC255525952FD1006BB256 /* Unknown.jpeg */,
 				E3FC255A259531DA006BB256 /* davinci.jpeg */,
 				E3FC252F259528EF006BB256 /* Info.plist */,
@@ -268,6 +271,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E3FC256A25954481006BB256 /* DragImageView.swift in Sources */,
+				E3FC2595259D1726006BB256 /* KeyConstants.swift in Sources */,
 				E3FC25612595344C006BB256 /* BookViewController.swift in Sources */,
 				E3FC2529259528EC006BB256 /* ViewController.swift in Sources */,
 				E3FC2527259528EC006BB256 /* AppDelegate.swift in Sources */,

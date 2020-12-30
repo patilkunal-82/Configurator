@@ -13,6 +13,7 @@ protocol DragImageViewDelegate {
 class DragImageView: NSView {
 
     var delegate: DragImageViewDelegate?
+    let coverImage: Bool
     let anchorIdentifier: String
     let contentIdentifier: String?
     var isFilled = false
@@ -21,7 +22,8 @@ class DragImageView: NSView {
     private let supportedTypes: [NSPasteboard.PasteboardType] = [.tiff, .color, .string, .fileURL, .png, .pdf, .URL, .fileContents]
     private let imageView = NSImageView()
     
-    init(frame frameRect: NSRect, anchorID: String, contentIdentifier: String?) {
+    init(frame frameRect: NSRect, anchorID: String, coverImage: Bool = false, contentIdentifier: String? = nil) {
+        self.coverImage = coverImage
         self.anchorIdentifier = anchorID
         self.contentIdentifier = contentIdentifier
         super.init(frame: frameRect)
