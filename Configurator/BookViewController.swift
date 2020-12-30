@@ -16,7 +16,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         }
         let fileName = (dragView.contentIdentifier == nil ? dragView.anchorIdentifier : dragView.contentIdentifier!) + "." + url.pathExtension
         let lastPath = "/" + fileName
-        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+        guard let path = bookDirectoryPath?.appending(lastPath) else { return }
         if fileManager.fileExists(atPath: path) {
             do {
                 try fileManager.removeItem(atPath: path)
@@ -67,10 +67,27 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     private var booksDictionary: [String : [String : String]] = [:]
     private var anchorsPlistDictionary: [String : [String]] = [:]
 
+    private var bookDirectoryPath: String?
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do view setup here.
         bookTitle.delegate = self
+        
+        let fileManager = FileManager()
+        guard let srcroot = ViewController.pathToCloudContent else { return }
+        let bookPath = srcroot.appending("/" + uuid.uuidString)
+        defer {
+            bookDirectoryPath = bookPath
+        }
+        var isDirectory: ObjCBool = false
+        guard !fileManager.fileExists(atPath: bookPath, isDirectory: &isDirectory) || !isDirectory.boolValue else { return }
+        
+        do {
+            try fileManager.createDirectory(atPath: bookPath, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            NSLog("Couldn't create document directory \(error)")
+            return
+        }
     }
     
     private func setupNextAnchorContentPlaceholder() {
@@ -156,7 +173,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
         let name = bookTitle.stringValue
         let fileName = name + "." + url.pathExtension
         let lastPath = "/" + fileName
-        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+        guard let path = bookDirectoryPath?.appending(lastPath) else { return }
         if fileManager.fileExists(atPath: path) {
             do {
                 try fileManager.removeItem(atPath: path)
@@ -186,7 +203,7 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
     @IBAction func publishBook(_ sender: Any) {
         guard publishBookButton.isEnabled else { return }
         let lastPath = "/" + bookTitle.stringValue + ".plist"
-        guard let path = ViewController.pathToCloudContent?.appending(lastPath) else { return }
+        guard let path = bookDirectoryPath?.appending(lastPath) else { return }
 
         do {
             let plistData = try PropertyListSerialization.data(fromPropertyList: anchorsPlistDictionary, format: .xml, options: 0)
@@ -195,20 +212,22 @@ class BookViewController: NSViewController, DragImageViewDelegate, NSTextFieldDe
             print("Could not write updated plist \(error)")
         }
         guard let plistPath = ViewController.pathToBooksPlist, let plist = fileManager.contents(atPath: plistPath) else { return }
+        var existingBooks: [String : [String : String]] = [:]
         if !plist.isEmpty {
             do {
-                booksDictionary = try PropertyListSerialization.propertyList(from: plist, options: .mutableContainersAndLeaves, format: nil) as! [String : [String : String]]
+                existingBooks = try PropertyListSerialization.propertyList(from: plist, options: .mutableContainersAndLeaves, format: nil) as! [String : [String : String]]
             } catch {
                 print("could not read plist into dictionary \(error)")
             }
         }
+        existingBooks.merge(booksDictionary){(current, _) in current}
         do {
-            let plistData = try PropertyListSerialization.data(fromPropertyList: booksDictionary, format: .xml, options: 0)
+            let plistData = try PropertyListSerialization.data(fromPropertyList: existingBooks, format: .xml, options: 0)
             try plistData.write(to: URL(fileURLWithPath: plistPath))
         } catch {
             print("Could not write updated plist \(error)")
         }
-
+        super.dismiss(self)
     }
     
     //Mark: NSTextFieldDelegate
