@@ -6,6 +6,12 @@
 //
 
 import Cocoa
+import AVKit
+import SceneKit
+import AVFoundation
+
+
+
 
 protocol DragImageViewDelegate {
     func didDragImage(url: URL, in dragView: DragImageView)
@@ -18,9 +24,12 @@ class DragImageView: NSView {
     let contentIdentifier: String?
     var isFilled = false
     private var fileTypeIsOk = false
-    private let acceptedFileExtensions = ["jpg", "png", "jpeg"]
-    private let supportedTypes: [NSPasteboard.PasteboardType] = [.tiff, .color, .string, .fileURL, .png, .pdf, .URL, .fileContents]
-    private let imageView = NSImageView()
+    private let acceptedFileExtensions = ["jpg", "png", "jpeg", "MP4", "mp4"]
+    private let supportedTypes: [NSPasteboard.PasteboardType] = [.tiff, .color, .string, .fileURL, .png, .pdf, .URL, .fileContents, .sound]
+    private var imageView = NSImageView()
+    private let videoView = NSData()
+    private let nsView = NSView()
+    
     
     init(frame frameRect: NSRect, anchorID: String, coverImage: Bool = false, contentIdentifier: String? = nil) {
         self.coverImage = coverImage
@@ -51,15 +60,52 @@ class DragImageView: NSView {
     }
     
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-        guard let draggedFileURL = sender.draggedFileURL, let nsImage = NSImage(contentsOfFile: draggedFileURL.path) else {
-            return false
+        
+        guard let draggedFileURL = sender.draggedFileURL else {return false}
+        print("dragged file: \(draggedFileURL.absoluteURL)")
+        
+        switch draggedFileURL.pathExtension {
+        case "jpg", "png", "JPEG", "HEIC":
+            let nsImage = NSImage(contentsOfFile: draggedFileURL.path)
+            imageView.frame = self.bounds
+            self.addSubview(imageView)
+            imageView.image = nsImage
+            delegate?.didDragImage(url: draggedFileURL, in: self)
+            isFilled = true
+            return true
+            
+        case "mp4":
+            
+            let avAsset = AVAsset(url: draggedFileURL.absoluteURL)
+            let assetView = AVAssetImageGenerator(asset: avAsset)
+            assetView.appliesPreferredTrackTransform = true
+            assetView.apertureMode = AVAssetImageGenerator.ApertureMode.encodedPixels
+            let cmTime = CMTime(seconds: 0.5, preferredTimescale: 60)
+            var avImage: CGImage?
+            do {
+                avImage = try assetView.copyCGImage(at: cmTime, actualTime: nil)
+                print("inside do catch")
+            } catch let error {
+                print("Error: \(error)")
+                
+            }
+            let aspectRatio = Float(avImage!.width) / Float(avImage!.height)
+            let avImageSize = NSSize(width: self.bounds.width, height: self.bounds.width/CGFloat(aspectRatio))
+            let asImage = NSImage(cgImage: avImage!, size: avImageSize)
+            imageView.frame = self.bounds
+            imageView.image = asImage
+            self.addSubview(imageView)
+           
+            delegate?.didDragImage(url: draggedFileURL, in: self)
+            isFilled = true
+            return true
+            
+            
+        default:
+            return true
+            
         }
-        imageView.frame = self.bounds
-        self.addSubview(imageView)
-        imageView.image = nsImage
-        delegate?.didDragImage(url: draggedFileURL, in: self)
-        isFilled = true
-        return true
+    
     }
     
 }
